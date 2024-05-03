@@ -14,7 +14,7 @@ class Game:
 		self.score = 0
 		self.rotate_sound = pygame.mixer.Sound("Sounds/rotate.ogg")
 		self.clear_sound = pygame.mixer.Sound("Sounds/clear.ogg")
-		self.countdown_time = 10
+		self.countdown_time = 60
 		self.last_update_time = pygame.time.get_ticks()
 		pygame.mixer.music.load("Sounds/music.ogg")
 		pygame.mixer.music.play(-1)
@@ -70,6 +70,7 @@ class Game:
 		self.current_block = self.get_random_block()
 		self.next_block = self.get_random_block()
 		self.score = 0
+		self.countdown_time = 10
 
 	def block_fits(self):
 		tiles = self.current_block.get_cell_positions()
@@ -104,7 +105,7 @@ class Game:
 			self.next_block.draw(screen, 270, 270)
 
 	def update_timer(self):
-		if not self.game_over:
+		if self.game_over == False:
 			current_time = pygame.time.get_ticks()
 			time_elapsed = (current_time - self.last_update_time) / 1000.0
 
@@ -112,5 +113,5 @@ class Game:
 			self.last_update_time = current_time
 
 			if self.countdown_time <= 0:
+				self.reset()
 				self.game_over = True
-				return

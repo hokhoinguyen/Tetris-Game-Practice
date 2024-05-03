@@ -24,10 +24,16 @@ clock = pygame.time.Clock()
 game = Game()
 
 GAME_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(GAME_UPDATE, 200)
+time_interval = 500
+pygame.time.set_timer(GAME_UPDATE, time_interval)
+
+# Initialize time tracking variables
+current_time = pygame.time.get_ticks()  # Current time in milliseconds
+time_since_last_second = 0  # Time since last second update
 
 while True:
 	for event in pygame.event.get():
+
 		if event.type == pygame.QUIT:
 			pygame.quit()
 			sys.exit()
@@ -42,11 +48,27 @@ while True:
 			if event.key == pygame.K_DOWN and game.game_over == False:
 				game.move_down()
 				game.update_score(0, 1)
+
 			if event.key == pygame.K_UP and game.game_over == False:
 				game.rotate()
 		if event.type == GAME_UPDATE and game.game_over == False:
 			game.move_down()
-	game.update_timer()
+
+	# Update time tracking variables
+	current_tick = pygame.time.get_ticks()
+	time_since_last_second += current_tick - current_time
+	current_time = current_tick
+	# If a second has passed, decrease time_interval by 10 milliseconds
+
+	if time_since_last_second >= 1000:
+		time_since_last_second -= 1000
+		if time_interval > 60:
+			time_interval -= 10
+			pygame.time.set_timer(GAME_UPDATE, time_interval)
+			print(time_interval)
+
+
+
 
 	#Drawing
 	score_value_surface = title_font.render(str(game.score), True, Colors.white)
@@ -58,8 +80,10 @@ while True:
 	if game.game_over == True:
 		screen.blit(game_over_surface, (320, 500, 50, 50))
 	else:
+		game.update_timer()
 		time_remaining_surface = title_font.render(str(timedelta(seconds=max(int(game.countdown_time), 0))), True, Colors.white)
 		screen.blit(time_remaining_surface, (360, 500, 50, 50))
+
 
 	pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
 	screen.blit(score_value_surface, score_value_surface.get_rect(centerx = score_rect.centerx,
